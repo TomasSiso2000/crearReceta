@@ -1,13 +1,13 @@
 import { Feather } from '@expo/vector-icons';
 import { View, Text, TextInput, TouchableOpacity, Alert, Platform, StyleSheet } from 'react-native';
 import { useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 
 
 export default function Step1() {
     const [title, setTitle] = useState("");
     const [exists, setExists] = useState(false);
-    const router = useRouter();
+    const navigation = useNavigation();
   
     const verificarTitulo = () => {
       if (title.trim().toLowerCase() === 'pizza') {
@@ -68,6 +68,11 @@ export default function Step1() {
             </View>
           </>
         )}
+
+        <TouchableOpacity style={styles.nextBtn} onPress={() => navigation.navigate('step2')}>
+          <Text style={styles.nextText}>Crear receta</Text>
+        </TouchableOpacity>
+
       </View>
     );
   }
@@ -181,5 +186,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  nextBtn: {
+  backgroundColor: '#A450D6',
+  paddingVertical: 12,
+  borderRadius: 6,
+  marginTop: 24,
+  alignItems: 'center',
+},
+nextText: {
+  color: '#fff',
+  fontWeight: 'bold',
+  fontSize: 14,
+},
   
 });
