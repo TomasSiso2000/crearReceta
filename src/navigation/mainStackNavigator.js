@@ -14,6 +14,8 @@ import AddRatingScreen from "../screens/Recipes/AddRatingScreen.jsx";
 import step1 from "../screens/create-recipe/step1.jsx";
 import step2 from "../screens/create-recipe/step2.jsx";
 import Step3 from '../screens/create-recipe/step3.jsx';
+import step4 from "../screens/create-recipe/step4.jsx";
+
 
 
 const Stack = createNativeStackNavigator();
@@ -35,6 +37,7 @@ export default function mainStackNavigator() {
             <Stack.Screen name="step1" component={step1} />
             <Stack.Screen name="step2" component={step2} />
             <Stack.Screen name="step3" component={Step3} />
+            <Stack.Screen name="step4" component={step4} />
         </Stack.Navigator>
     );
 };
