@@ -1,6 +1,8 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Picker, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+
 
 export default function Step2() {
   const [description, setDescription] = useState('');
@@ -10,6 +12,8 @@ export default function Step2() {
   const [difficulty, setDifficulty] = useState('MEDIO');
   const [minutes, setMinutes] = useState(0);
   const [diet, setDiet] = useState('');
+  const navigation = useNavigation();
+
 
   return (
     <ScrollView style={styles.container}>
@@ -89,9 +93,10 @@ export default function Step2() {
       />
 
       {/* Guardar */}
-      <TouchableOpacity style={styles.saveBtn}>
+      <TouchableOpacity style={styles.saveBtn} onPress={() => navigation.navigate('step3')}>
         <Text style={styles.saveText}>Guardar Receta</Text>
       </TouchableOpacity>
+
     </ScrollView>
   );
 }
