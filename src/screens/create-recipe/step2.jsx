@@ -1,67 +1,85 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Picker, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import InputField from '../../components/InputField';
+import PlusMinusButton from '../../components/PlusMinusButton';
+import IngredientInput from '../../components/IngredientInput';
+import InstructionInput from '../../components/InstructionInput';
 import { useNavigation } from '@react-navigation/native';
 
-
 export default function Step2() {
+  const navigation = useNavigation();
   const [description, setDescription] = useState('');
   const [portions, setPortions] = useState(1);
-  const [ingredients, setIngredients] = useState('');
-  const [instructions, setInstructions] = useState('');
+  const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '' }]);
+  const [instructions, setInstructions] = useState(['']);
   const [difficulty, setDifficulty] = useState('MEDIO');
   const [minutes, setMinutes] = useState(0);
   const [diet, setDiet] = useState('');
-  const navigation = useNavigation();
 
+  const addIngredient = () => {
+    setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
+  };
+
+  const updateIngredient = (index, updated) => {
+    const updatedList = [...ingredients];
+    updatedList[index] = updated;
+    setIngredients(updatedList);
+  };
+
+  const addInstruction = () => {
+    setInstructions([...instructions, '']);
+  };
+
+  const updateInstruction = (index, value) => {
+    const updated = [...instructions];
+    updated[index] = value;
+    setInstructions(updated);
+  };
 
   return (
     <ScrollView style={styles.container}>
-      {/* Imagen */}
       <Text style={styles.label}>Imagen</Text>
       <TouchableOpacity style={styles.addBtn}>
         <Text style={styles.addBtnText}>+</Text>
       </TouchableOpacity>
 
-      {/* Descripción */}
       <Text style={styles.label}>Descripción</Text>
-      <TextInput
-        placeholder="Describe brevemente el plato"
-        style={styles.input}
-        value={description}
-        onChangeText={setDescription}
-      />
+      <InputField placeholder="Describe brevemente el plato" value={description} onChangeText={setDescription} />
 
-      {/* Porciones */}
       <Text style={styles.label}>Porciones</Text>
       <View style={styles.row}>
-        <TouchableOpacity onPress={() => setPortions(Math.max(1, portions - 1))} style={styles.addBtn}><Text>-</Text></TouchableOpacity>
+        <PlusMinusButton symbol="-" onPress={() => setPortions(Math.max(1, portions - 1))} />
         <Text style={styles.centeredText}>{portions} Porciones</Text>
-        <TouchableOpacity onPress={() => setPortions(portions + 1)} style={styles.addBtn}><Text>+</Text></TouchableOpacity>
+        <PlusMinusButton symbol="+" onPress={() => setPortions(portions + 1)} />
       </View>
 
-      {/* Ingredientes */}
       <Text style={styles.label}>Ingredientes</Text>
-      <TextInput
-        placeholder="Ingresa los ingredientes de tu receta"
-        style={styles.input}
-        value={ingredients}
-        onChangeText={setIngredients}
-      />
+      {ingredients.map((item, index) => (
+        <IngredientInput
+          key={index}
+          ingredient={item}
+          onChange={(updated) => updateIngredient(index, updated)}
+        />
+      ))}
+      <TouchableOpacity onPress={addIngredient} style={styles.agregarBtn}>
+        <Ionicons name="add" size={14} />
+        <Text style={styles.agregarBtnText}> Agregar ingrediente</Text>
+      </TouchableOpacity>
 
-      {/* Instrucciones */}
       <Text style={styles.label}>Instrucciones</Text>
-      <View style={styles.instructionsBox}>
-        <Text style={styles.instructionsText}>
-          Agrega los pasos de la receta, también podes agregar links que ayuden como guía.
-        </Text>
-      </View>
-      <TouchableOpacity style={styles.agregarBtn}>
-        <Ionicons name="trash" size={14} />
+      {instructions.map((step, index) => (
+        <InstructionInput
+          key={index}
+          value={step}
+          onChangeText={(text) => updateInstruction(index, text)}
+        />
+      ))}
+      <TouchableOpacity onPress={addInstruction} style={styles.agregarBtn}>
+        <Ionicons name="add" size={14} />
         <Text style={styles.agregarBtnText}> Agregar instrucción</Text>
       </TouchableOpacity>
 
-      {/* Dificultad */}
       <Text style={styles.label}>Dificultad</Text>
       <View style={styles.row}>
         {['BAJO', 'MEDIO', 'ALTO'].map((level) => (
@@ -75,28 +93,19 @@ export default function Step2() {
         ))}
       </View>
 
-      {/* Tiempo */}
       <Text style={styles.label}>Tiempo</Text>
       <View style={styles.row}>
-        <TouchableOpacity onPress={() => setMinutes(Math.max(0, minutes - 1))} style={styles.addBtn}><Text>-</Text></TouchableOpacity>
+        <PlusMinusButton symbol="-" onPress={() => setMinutes(Math.max(0, minutes - 1))} />
         <Text style={styles.centeredText}>{minutes} minutos</Text>
-        <TouchableOpacity onPress={() => setMinutes(minutes + 1)} style={styles.addBtn}><Text>+</Text></TouchableOpacity>
+        <PlusMinusButton symbol="+" onPress={() => setMinutes(minutes + 1)} />
       </View>
 
-      {/* Tipo de Dieta */}
       <Text style={styles.label}>Tipo de Dieta</Text>
-      <TextInput
-        placeholder="Seleccioná el tipo de Dieta"
-        value={diet}
-        onChangeText={setDiet}
-        style={styles.input}
-      />
+      <InputField placeholder="Seleccioná el tipo de Dieta" value={diet} onChangeText={setDiet} />
 
-      {/* Guardar */}
       <TouchableOpacity style={styles.saveBtn} onPress={() => navigation.navigate('step3')}>
-        <Text style={styles.saveText}>Guardar Receta</Text>
+        <Text style={styles.saveText}>Guardar y continuar</Text>
       </TouchableOpacity>
-
     </ScrollView>
   );
 }
@@ -104,12 +113,6 @@ export default function Step2() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', padding: 16 },
   label: { fontSize: 16, fontWeight: 'bold', marginTop: 16 },
-  input: {
-    backgroundColor: '#f0f0f0',
-    borderRadius: 4,
-    padding: 10,
-    marginTop: 6,
-  },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 10 },
   addBtn: {
     width: 24,
@@ -121,13 +124,6 @@ const styles = StyleSheet.create({
   },
   addBtnText: { fontSize: 18, fontWeight: 'bold' },
   centeredText: { fontSize: 14 },
-  instructionsBox: {
-    backgroundColor: '#EAEAEA',
-    padding: 12,
-    borderRadius: 4,
-    marginTop: 6,
-  },
-  instructionsText: { fontSize: 12, color: '#333' },
   agregarBtn: {
     flexDirection: 'row',
     alignItems: 'center',
