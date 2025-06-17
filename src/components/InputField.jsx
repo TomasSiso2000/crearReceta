@@ -1,6 +1,6 @@
 import { TextInput, StyleSheet } from 'react-native';
 
-export default function InputField({ placeholder, value, onChangeText, style }) {
+export default function InputField({ placeholder, value, onChangeText, style, keyboardType = 'default' }) {
   return (
     <TextInput
       style={[styles.input, style]}
@@ -8,9 +8,11 @@ export default function InputField({ placeholder, value, onChangeText, style }) 
       value={value}
       onChangeText={onChangeText}
       placeholderTextColor="#B9B9B9"
+      keyboardType={keyboardType}
     />
   );
 }
+
 
 const styles = StyleSheet.create({
   input: {
@@ -21,3 +23,4 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
 });
+
