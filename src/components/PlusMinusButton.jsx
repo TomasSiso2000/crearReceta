@@ -1,12 +1,14 @@
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
-export default function PlusMinusButton({ onPress, symbol = '+' }) {
+const PlusMinusButton = ({ onPress, symbol = '+' }) => {
+
   return (
     <TouchableOpacity style={styles.button} onPress={onPress}>
       <Text>{symbol}</Text>
     </TouchableOpacity>
   );
-}
+};
+export default PlusMinusButton;
 
 const styles = StyleSheet.create({
   button: {
