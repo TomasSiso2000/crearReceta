@@ -1,7 +1,8 @@
 import { View } from 'react-native';
 import InputField from './InputField';
 
-export default function InstructionInput({ text, onChange }) {
+const InstructionInput = ({ text, onChange }) => {
+//const IngredientInput = ({ ingredient, onChange }) => {
   return (
     <View style={{ marginBottom: 12 }}>
       <InputField
@@ -11,4 +12,5 @@ export default function InstructionInput({ text, onChange }) {
       />
     </View>
   );
-}
+};
+export default InstructionInput;
