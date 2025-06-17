@@ -6,6 +6,7 @@ import PlusMinusButton from '../../components/PlusMinusButton';
 import IngredientInput from '../../components/IngredientInput';
 import InstructionInput from '../../components/InstructionInput';
 import { useNavigation } from '@react-navigation/native';
+import { TextInput } from 'react-native';
 
 export default function Step2() {
   const navigation = useNavigation();
@@ -114,11 +115,25 @@ export default function Step2() {
       </View>
 
       <Text style={styles.label}>Tiempo</Text>
-      <View style={styles.row}>
-        <PlusMinusButton symbol="-" onPress={() => setMinutes(Math.max(0, minutes - 1))} />
-        <Text style={styles.centeredText}>{minutes} minutos</Text>
-        <PlusMinusButton symbol="+" onPress={() => setMinutes(minutes + 1)} />
-      </View>
+        <View style={styles.row}>
+            <TextInput
+                style={styles.timeInput}
+                placeholder="Minutos"
+                value={minutes.toString()}
+                onChangeText={(text) => {
+                    const num = parseInt(text, 10);
+                    if (!isNaN(num) && num >= 0) {
+                        setMinutes(num);
+                    } else if (text === '') {
+                        setMinutes(0);
+                    }
+                }}
+                keyboardType="numeric"
+                maxLength={3}
+            />
+            <Text style={styles.centeredText}>minutos</Text>
+        </View>
+
 
       <Text style={styles.label}>Tipo de Dieta</Text>
       <InputField placeholder="Seleccioná el tipo de Dieta" value={diet} onChangeText={setDiet} />
@@ -171,6 +186,14 @@ const styles = StyleSheet.create({
   saveText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  timeInput: {
+    width: 60,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 4,
+    padding: 10,
+    fontSize: 14,
+    textAlign: 'center',
   },
   removeText: {
   color: '#A450D6',
