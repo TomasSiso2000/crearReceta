@@ -4,7 +4,7 @@ import InputField from './InputField';
 
 const unidades = ['g', 'kg', 'ml', 'l', 'cucharadas', 'tazas', 'unidad'];
 
-export default function IngredientInput({ ingredient, onChange }) {
+const IngredientInput = ({ ingredient, onChange }) => {
   return (
     <View style={{ marginBottom: 12 }}>
       <InputField
@@ -31,8 +31,8 @@ export default function IngredientInput({ ingredient, onChange }) {
       </Picker>
     </View>
   );
-}
-
+};
+export default IngredientInput;
 const styles = StyleSheet.create({
   picker: {
     backgroundColor: '#f0f0f0',
