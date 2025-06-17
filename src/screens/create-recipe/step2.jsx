@@ -27,6 +27,16 @@ export default function Step2() {
     setIngredients(updatedList);
   };
 
+  const removeIngredient = (index) => {
+    const updated = ingredients.filter((_, i) => i !== index);
+    setIngredients(updated);
+  };
+
+  const removeInstruction = (index) => {
+  const updated = instructions.filter((_, i) => i !== index);
+  setInstructions(updated);
+};
+
   const addInstruction = () => {
     setInstructions([...instructions, '']);
   };
@@ -56,12 +66,17 @@ export default function Step2() {
 
       <Text style={styles.label}>Ingredientes</Text>
       {ingredients.map((item, index) => (
-        <IngredientInput
-          key={index}
-          ingredient={item}
-          onChange={(updated) => updateIngredient(index, updated)}
-        />
-      ))}
+        <View key={index} style={{ marginBottom: 12 }}>
+            <IngredientInput
+                ingredient={item}
+                onChange={(updated) => updateIngredient(index, updated)}
+            />
+            <TouchableOpacity onPress={() => removeIngredient(index)}>
+             <Text style={styles.removeText}>🗑️ Borrar ingrediente</Text>
+            </TouchableOpacity>
+        </View>
+       ))}
+
       <TouchableOpacity onPress={addIngredient} style={styles.agregarBtn}>
         <Ionicons name="add" size={14} />
         <Text style={styles.agregarBtnText}> Agregar ingrediente</Text>
@@ -69,12 +84,17 @@ export default function Step2() {
 
       <Text style={styles.label}>Instrucciones</Text>
       {instructions.map((step, index) => (
-        <InstructionInput
-          key={index}
-          value={step}
-          onChangeText={(text) => updateInstruction(index, text)}
-        />
-      ))}
+        <View key={index} style={{ marginBottom: 12 }}>
+            <InstructionInput
+                value={step}
+                onChangeText={(text) => updateInstruction(index, text)}
+            />
+            <TouchableOpacity onPress={() => removeInstruction(index)}>
+                <Text style={styles.removeText}>🗑️ Borrar instrucción</Text>
+            </TouchableOpacity>
+        </View>
+       ))}
+
       <TouchableOpacity onPress={addInstruction} style={styles.agregarBtn}>
         <Ionicons name="add" size={14} />
         <Text style={styles.agregarBtnText}> Agregar instrucción</Text>
@@ -152,4 +172,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  removeText: {
+  color: '#A450D6',
+  fontSize: 12,
+  marginTop: 4,
+  marginLeft: 4,
+}
 });
+
