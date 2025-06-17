@@ -1,6 +1,6 @@
 import { TextInput, StyleSheet } from 'react-native';
 
-export default function InputField({ placeholder, value, onChangeText, style, keyboardType = 'default' }) {
+const InputField = ({ placeholder, value, onChangeText, style, keyboardType = 'default' }) => {
   return (
     <TextInput
       style={[styles.input, style]}
@@ -11,7 +11,8 @@ export default function InputField({ placeholder, value, onChangeText, style, ke
       keyboardType={keyboardType}
     />
   );
-}
+};
+export default InputField;
 
 
 const styles = StyleSheet.create({
