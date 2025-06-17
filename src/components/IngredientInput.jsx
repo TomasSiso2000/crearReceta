@@ -1,5 +1,8 @@
-import { View, Text } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Picker } from '@react-native-picker/picker'; // Asegurate de tenerlo instalado
 import InputField from './InputField';
+
+const unidades = ['g', 'kg', 'ml', 'l', 'cucharadas', 'tazas', 'unidad'];
 
 export default function IngredientInput({ ingredient, onChange }) {
   return (
@@ -11,14 +14,31 @@ export default function IngredientInput({ ingredient, onChange }) {
       />
       <InputField
         placeholder="Cantidad"
-        value={ingredient.amount}
-        onChangeText={(text) => onChange({ ...ingredient, amount: text })}
+        value={ingredient.quantity}
+        onChangeText={(text) => onChange({ ...ingredient, quantity: text })}
+        keyboardType="numeric"
       />
-      <InputField
-        placeholder="Unidad (g, ml, etc)"
-        value={ingredient.unit}
-        onChangeText={(text) => onChange({ ...ingredient, unit: text })}
-      />
+
+      <Picker
+        selectedValue={ingredient.unit}
+        style={styles.picker}
+        onValueChange={(value) => onChange({ ...ingredient, unit: value })}
+      >
+        <Picker.Item label="Seleccionar unidad" value="" />
+        {unidades.map((unidad) => (
+          <Picker.Item key={unidad} label={unidad} value={unidad} />
+        ))}
+      </Picker>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  picker: {
+    backgroundColor: '#f0f0f0',
+    marginTop: 6,
+    padding: 10,
+    borderRadius: 4,
+  },
+});
+
