@@ -22,9 +22,7 @@ export default function Step1() {
     setExists(yaExiste);
     setChecked(true);
 
-    if (!yaExiste) {
-      Alert.alert('Título disponible');
-    }
+    
   };
 
   return (
