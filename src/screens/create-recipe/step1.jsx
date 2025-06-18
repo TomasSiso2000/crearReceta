@@ -91,7 +91,9 @@ const styles = StyleSheet.create({
   },
   header: {
     height: 95,
-    justifyContent: 'center',
+    paddingTop: 20, 
+    paddingLeft:40,
+    justifyContent: 'flex-start', 
     alignItems: 'center',
     backgroundColor: '#fff',
     shadowColor: '#000',
@@ -102,6 +104,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     position: 'relative',
   },
+
+
   backButton: {
     position: 'absolute',
     left: 20,
@@ -112,10 +116,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: '700', // Omitible si ya usás fontFamily
+    fontWeight: '700',
     color: '#000',
-    fontFamily: 'Inter_700Bold', // usa la fuente cargada
-  },  
+    fontFamily: 'Inter_700Bold',
+    marginTop: 10, // <-- este hace que el texto no se superponga
+    textAlign: 'center',
+  },
   label: {
     fontSize: 16,
     fontFamily: 'Inter_200ExtraLight', // o 'Inter_300Light' si no está disponible el 200
