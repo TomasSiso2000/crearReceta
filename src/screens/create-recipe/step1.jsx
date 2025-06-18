@@ -44,9 +44,10 @@ export default function Step1() {
 
   
         {/* Verificar existencia */}
-        <TouchableOpacity onPress={verificarTitulo}>
-            <Text style={styles.verificarTexto}>Verificar si el título existe</Text>
+        <TouchableOpacity onPress={verificarTitulo} style={styles.verificarBtn}>
+          <Text style={styles.verificarBtnText}>Verificar si el título existe</Text>
         </TouchableOpacity>
+
 
   
         {/* Mensaje de conflicto */}
@@ -129,18 +130,19 @@ const styles = StyleSheet.create({
     color: '#000',
     marginBottom: 10,
   },
-  verificarTexto: {
-    backgroundColor: 'rgba(218, 174, 235, 0.53)',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    fontSize: 9,
-    color: '#000', // <- este cambio lo hace más fuerte
-    fontFamily: 'Inter_100Thin',
-    marginBottom: 20,
+  verificarBtn: {
+  backgroundColor: '#DAAEEB',
+  paddingVertical: 6,
+  paddingHorizontal: 10,
+  borderRadius: 6,
+  alignSelf: 'flex-start',
+  marginBottom: 20,
   },
-  
+  verificarBtnText: {
+    fontSize: 12,
+    color: '#000',
+    fontWeight: '500',
+  },
   existeBox: {
     backgroundColor: '#EAEAEA',
     padding: 20,
@@ -200,3 +202,4 @@ nextText: {
 },
   
 });
+
