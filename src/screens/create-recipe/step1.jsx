@@ -8,15 +8,22 @@ export default function Step1() {
     const [title, setTitle] = useState("");
     const [exists, setExists] = useState(false);
     const navigation = useNavigation();
+    
   
     const verificarTitulo = () => {
-      if (title.trim().toLowerCase() === 'pizza') {
-        setExists(true);
+      const tituloNormalizado = title.trim().toLowerCase();
+
+      const yaExiste = true; 
+
+      if (yaExiste) {
+        setExists(true); 
       } else {
-        setExists(false);
+        setExists(false); 
         Alert.alert('Título disponible');
       }
     };
+
+
   
     return (
       <View style={styles.container}>
@@ -48,19 +55,15 @@ export default function Step1() {
           <Text style={styles.verificarBtnText}>Verificar si el título existe</Text>
         </TouchableOpacity>
 
-
-  
-        {/* Mensaje de conflicto */}
         {exists && (
           <>
             <View style={styles.existeBox}>
               <Text style={styles.existeText}>
-                Ya tenes una receta creada con el mismo nombre
+                Ya tenés una receta creada con el mismo nombre
               </Text>
             </View>
-  
-            {/* Botones */}
-            <View style={styles.botonesContainer}>
+
+            <View style={styles.botonesContainer}>      
               {['Cambiar Nombre', 'Reemplazar Existente', 'Editar Existente'].map((label) => (
                 <TouchableOpacity key={label} style={styles.btn}>
                   <Text style={styles.btnText}>{label}</Text>
