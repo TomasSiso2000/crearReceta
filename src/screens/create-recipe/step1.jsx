@@ -3,84 +3,87 @@ import { View, Text, TextInput, TouchableOpacity, Alert, Platform, StyleSheet } 
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
-
 export default function Step1() {
-    const [title, setTitle] = useState("");
-    const [exists, setExists] = useState(false);
-    const navigation = useNavigation();
-    
-  
-    const verificarTitulo = () => {
-      const tituloNormalizado = title.trim().toLowerCase();
+  const [title, setTitle] = useState('');
+  const [exists, setExists] = useState(false);
+  const [checked, setChecked] = useState(false); // nuevo estado
+  const navigation = useNavigation();
 
-      const yaExiste = true; 
+  const verificarTitulo = () => {
+    const tituloNormalizado = title.trim().toLowerCase();
 
-      if (yaExiste) {
-        setExists(true); 
-      } else {
-        setExists(false); 
-        Alert.alert('Título disponible');
-      }
-    };
+    if (tituloNormalizado === '') {
+      Alert.alert('Ingresá un título');
+      return;
+    }
 
+    const yaExiste = false; // Simulación de resultado
 
-  
-    return (
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backIconContainer}>
-                <View style={styles.circle}>
-                 <Feather name="arrow-left" size={20} color="#000" />
-                </View>
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Crea tu propia receta</Text>
-        </View>
+    setExists(yaExiste);
+    setChecked(true);
 
-  
-        {/* Campo título */}
-        <Text style={styles.label}>Título</Text>
-        <TextInput
-            placeholder="Agrega nombre a la receta"
-            placeholderTextColor="#B9B9B9"
-            value={title}
-            onChangeText={setTitle}
-            style={styles.input}
-        />
+    if (!yaExiste) {
+      Alert.alert('Título disponible');
+    }
+  };
 
-
-  
-        {/* Verificar existencia */}
-        <TouchableOpacity onPress={verificarTitulo} style={styles.verificarBtn}>
-          <Text style={styles.verificarBtnText}>Verificar si el título existe</Text>
+  return (
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backIconContainer}>
+          <View style={styles.circle}>
+            <Feather name="arrow-left" size={20} color="#000" />
+          </View>
         </TouchableOpacity>
+        <Text style={styles.headerTitle}>Crea tu propia receta</Text>
+      </View>
 
-        {exists && (
-          <>
-            <View style={styles.existeBox}>
-              <Text style={styles.existeText}>
-                Ya tenés una receta creada con el mismo nombre
-              </Text>
-            </View>
+      {/* Campo título */}
+      <Text style={styles.label}>Título</Text>
+      <TextInput
+        placeholder="Agrega nombre a la receta"
+        placeholderTextColor="#B9B9B9"
+        value={title}
+        onChangeText={(text) => {
+          setTitle(text);
+          setChecked(false); // resetea cuando cambia
+        }}
+        style={styles.input}
+      />
 
-            <View style={styles.botonesContainer}>      
-              {['Cambiar Nombre', 'Reemplazar Existente', 'Editar Existente'].map((label) => (
-                <TouchableOpacity key={label} style={styles.btn}>
-                  <Text style={styles.btnText}>{label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </>
-        )}
+      {/* Verificar existencia */}
+      <TouchableOpacity onPress={verificarTitulo} style={styles.verificarBtn}>
+        <Text style={styles.verificarBtnText}>Verificar si el título existe</Text>
+      </TouchableOpacity>
 
+      {/* Condicionales */}
+      {checked && exists && (
+        <>
+          <View style={styles.existeBox}>
+            <Text style={styles.existeText}>
+              Ya tenés una receta creada con el mismo nombre
+            </Text>
+          </View>
+
+          <View style={styles.botonesContainer}>
+            {['Cambiar Nombre', 'Reemplazar Existente', 'Editar Existente'].map((label) => (
+              <TouchableOpacity key={label} style={styles.btn}>
+                <Text style={styles.btnText}>{label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </>
+      )}
+
+      {checked && !exists && (
         <TouchableOpacity style={styles.nextBtn} onPress={() => navigation.navigate('step2')}>
           <Text style={styles.nextText}>Crear receta</Text>
         </TouchableOpacity>
-
-      </View>
-    );
-  }
-
+      )}
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -91,9 +94,8 @@ const styles = StyleSheet.create({
   },
   header: {
     height: 95,
-    paddingTop: 20, 
-    paddingLeft:40,
-    justifyContent: 'flex-start', 
+    paddingTop: 30,
+    justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: '#fff',
     shadowColor: '#000',
@@ -104,34 +106,38 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     position: 'relative',
   },
-
-
-  backButton: {
+  backIconContainer: {
     position: 'absolute',
-    left: 20,
+    left: 23,
+    top: 30,
   },
-  backIcon: {
-    fontSize: 26,
-    color: '#000',
+  circle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
     color: '#000',
     fontFamily: 'Inter_700Bold',
-    marginTop: 10, // <-- este hace que el texto no se superponga
+    marginTop: 10,
     textAlign: 'center',
   },
   label: {
     fontSize: 16,
-    fontFamily: 'Inter_200ExtraLight', // o 'Inter_300Light' si no está disponible el 200
+    fontFamily: 'Inter_200ExtraLight',
     color: '#000',
     marginBottom: 5,
-  },  
+  },
   input: {
-    width: '100%', // se adapta al contenedor
+    width: '100%',
     height: 30,
-    backgroundColor: 'rgba(0, 0, 0, 0.06)', // igual al 6% de opacidad
+    backgroundColor: 'rgba(0, 0, 0, 0.06)',
     borderRadius: 0,
     paddingHorizontal: 10,
     fontSize: 12,
@@ -140,12 +146,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   verificarBtn: {
-  backgroundColor: '#DAAEEB',
-  paddingVertical: 6,
-  paddingHorizontal: 10,
-  borderRadius: 6,
-  alignSelf: 'flex-start',
-  marginBottom: 20,
+    backgroundColor: '#DAAEEB',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginBottom: 20,
   },
   verificarBtnText: {
     fontSize: 12,
@@ -183,32 +189,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
   },
-  backIconContainer: {
-    position: 'absolute',
-    left: 23,
-    top: 30,
-  },
-  circle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: '#000',
-    justifyContent: 'center',
+  nextBtn: {
+    backgroundColor: '#A450D6',
+    paddingVertical: 12,
+    borderRadius: 6,
+    marginTop: 24,
     alignItems: 'center',
   },
-  nextBtn: {
-  backgroundColor: '#A450D6',
-  paddingVertical: 12,
-  borderRadius: 6,
-  marginTop: 24,
-  alignItems: 'center',
-},
-nextText: {
-  color: '#fff',
-  fontWeight: 'bold',
-  fontSize: 14,
-},
-  
+  nextText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
 });
-
