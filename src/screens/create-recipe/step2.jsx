@@ -7,6 +7,8 @@ import IngredientInput from '../../components/IngredientInput';
 import InstructionInput from '../../components/InstructionInput';
 import { useNavigation } from '@react-navigation/native';
 import { TextInput } from 'react-native';
+import GetImageComponent from '../../components/GetImageComponent';
+import { Image } from 'react-native';
 
 export default function Step2() {
   const navigation = useNavigation();
@@ -17,6 +19,9 @@ export default function Step2() {
   const [difficulty, setDifficulty] = useState('MEDIO');
   const [minutes, setMinutes] = useState(0);
   const [diet, setDiet] = useState('');
+  const [image, setImage] = useState(null);
+  const [showImagePicker, setShowImagePicker] = useState(false);
+
 
   const addIngredient = () => {
     setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
@@ -51,9 +56,24 @@ export default function Step2() {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.label}>Imagen</Text>
-      <TouchableOpacity style={styles.addBtn}>
-        <Text style={styles.addBtnText}>+</Text>
-      </TouchableOpacity>
+        {image ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+            <Image source={{ uri: image }} style={styles.imagePreview} />
+            <TouchableOpacity onPress={() => setImage(null)} style={styles.removeImageBtn}>
+            <Ionicons name="trash" size={20} color="black" />
+            </TouchableOpacity>
+        </View>
+        ) : (
+        <TouchableOpacity style={styles.addBtn} onPress={() => setShowImagePicker(true)}>
+            <Text style={styles.addBtnText}>+</Text>
+        </TouchableOpacity>
+        )}
+        <GetImageComponent
+        visible={showImagePicker}
+        setVisible={setShowImagePicker}
+        onImageSelected={(uri) => setImage(uri)}
+        />
+
 
       <Text style={styles.label}>Descripción</Text>
       <InputField placeholder="Describe brevemente el plato" value={description} onChangeText={setDescription} />
@@ -194,6 +214,17 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 14,
     textAlign: 'center',
+  },
+  imagePreview: {
+  width: 80,
+  height: 80,
+  borderRadius: 8,
+  marginRight: 10,
+  },
+  removeImageBtn: {
+  padding: 6,
+  backgroundColor: '#eee',
+  borderRadius: 8,
   },
   removeText: {
   color: '#A450D6',
