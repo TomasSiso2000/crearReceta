@@ -65,6 +65,7 @@ export default function Step2() {
   }
 
   if (instructions.length === 0 || instructions.some(i => !i.trim())) {
+    console.log('instrucciones:', instructions);
     Alert.alert('Completá todas las instrucciones');
     return;
   }
