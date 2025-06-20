@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import InputField from '../../components/InputField';
@@ -52,6 +52,37 @@ export default function Step2() {
     updated[index] = value;
     setInstructions(updated);
   };
+
+  const validarYContinuar = () => {
+  if (!description.trim()) {
+    Alert.alert('Falta la descripción');
+    return;
+  }
+
+  if (ingredients.length === 0 || ingredients.some(i => !i.name.trim() || !i.quantity.trim() || !i.unit.trim())) {
+    Alert.alert('Completá todos los ingredientes');
+    return;
+  }
+
+  if (instructions.length === 0 || instructions.some(i => !i.trim())) {
+    Alert.alert('Completá todas las instrucciones');
+    return;
+  }
+
+  if (!diet.trim()) {
+    Alert.alert('Seleccioná el tipo de dieta');
+    return;
+  }
+
+  if (minutes === 0) {
+    Alert.alert('Ingresá un tiempo de preparación válido');
+    return;
+  }
+
+  // Si pasa todo:
+  navigation.navigate('step3');
+};
+
 
   return (
     <ScrollView style={styles.container}>
@@ -158,9 +189,10 @@ export default function Step2() {
       <Text style={styles.label}>Tipo de Dieta</Text>
       <InputField placeholder="Seleccioná el tipo de Dieta" value={diet} onChangeText={setDiet} />
 
-      <TouchableOpacity style={styles.saveBtn} onPress={() => navigation.navigate('step3')}>
+      <TouchableOpacity style={styles.saveBtn} onPress={validarYContinuar}>
         <Text style={styles.saveText}>Guardar y continuar</Text>
       </TouchableOpacity>
+
     </ScrollView>
   );
 }
