@@ -10,6 +10,8 @@ import { TextInput } from 'react-native';
 import GetImageComponent from '../../components/GetImageComponent';
 import { Image } from 'react-native';
 import DietInput from '../../components/DietInput';
+import DishTypeInput from '../../components/DishTypeInput';
+
 
 
 export default function Step2() {
@@ -23,6 +25,9 @@ export default function Step2() {
   const [diet, setDiet] = useState('');
   const [image, setImage] = useState(null);
   const [showImagePicker, setShowImagePicker] = useState(false);
+  const [dishType, setDishType] = useState('');
+  const [customDishType, setCustomDishType] = useState('');
+
 
 
   const addIngredient = () => {
@@ -192,6 +197,13 @@ export default function Step2() {
 
 
       <DietInput selectedDiet={diet} onChange={(value) => setDiet(value)} />
+
+      <DishTypeInput
+        selectedDish={dishType}
+        onDishChange={(value) => setDishType(value)}
+        customDish={customDishType}
+        onCustomDishChange={(text) => setCustomDishType(text)}
+      />
 
 
       <TouchableOpacity style={styles.saveBtn} onPress={validarYContinuar}>
