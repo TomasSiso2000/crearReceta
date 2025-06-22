@@ -33,7 +33,7 @@ const FilteredResult = ({ searchTerm, selected, searchExecuted }) => {
       )}
 
       {/* Mostrar resultados solo si se ejecutó búsqueda y hay texto */}
-      {searchExecuted && trimmedSearch !== '' && dummyResults.map((result) => (
+      {searchExecuted && trimmedSearch !== '' && selected !== null && dummyResults.map((result) => (
         <View key={result.id} style={styles.card}>
           <Image source={{ uri: result.image }} style={styles.image} />
           <View style={styles.cardInfo}>
@@ -97,4 +97,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
 });
+
 
