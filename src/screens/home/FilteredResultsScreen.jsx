@@ -18,13 +18,19 @@ const filters = [
   'Tipo (Carne, Pasta)',
 ];
 
+// ❌ ELIMINAR ESTA LÍNEA ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+// const [searchExecuted, setSearchExecuted] = useState(false);
+// ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+
 const FilteredResultScreen = () => {
   const [selected, setSelected] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchExecuted, setSearchExecuted] = useState(false); // ✔️ ESTA ESTÁ BIEN
 
   const resetFilter = () => {
     setSelected(null);
     setSearchTerm('');
+    setSearchExecuted(false);
   };
 
   return (
@@ -41,13 +47,26 @@ const FilteredResultScreen = () => {
         placeholderTextColor="#aaa"
         style={styles.searchInput}
         value={searchTerm}
-        onChangeText={setSearchTerm}
+        onChangeText={(text) => {
+          setSearchTerm(text);
+          setSearchExecuted(false); // reinicia el estado de búsqueda
+        }}
       />
+      <TouchableOpacity
+        onPress={() => {
+          if (searchTerm.trim() !== '') {
+            setSearchExecuted(true);
+          }
+        }}
+      >
+        <Ionicons name="search" size={24} color="#444" />
+      </TouchableOpacity>
     </View>
   ) : (
     <Text style={styles.headerText}>Selecciona el filtro para empezar</Text>
   )}
 </View>
+
 
 
       {/* Lista de opciones */}
@@ -71,8 +90,10 @@ const FilteredResultScreen = () => {
         <FilteredResult
           searchTerm={searchTerm}
           selected={selected}
+          searchExecuted={searchExecuted}
         />
       )}
+
 
 
     </ScrollView>
@@ -121,3 +142,4 @@ const styles = StyleSheet.create({
     color: '#444',
   },
 });
+
