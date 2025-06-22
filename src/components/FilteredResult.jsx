@@ -26,11 +26,21 @@ const FilteredResult = ({ searchTerm, selected, searchExecuted }) => {
     <View style={{ marginTop: 30 }}>
       {/* Mostrar botón siempre que haya un filtro seleccionado */}
       {selected !== null && (
-        <TouchableOpacity style={styles.sortButton}>
-          <Ionicons name="swap-vertical" size={18} color="#888" />
-          <Text style={styles.sortText}>Ordenar por antigüedad</Text>
-        </TouchableOpacity>
-      )}
+  <View style={{ gap: 10 }}>
+    <TouchableOpacity style={styles.sortButton}>
+      <Ionicons name="swap-vertical" size={18} color="#888" />
+      <Text style={styles.sortText}>Ordenar por antigüedad</Text>
+    </TouchableOpacity>
+
+    {(selected === 1 || selected === 2 || selected === 3 || selected === 4) && (
+      <TouchableOpacity style={styles.sortButton}>
+        <Ionicons name="person" size={18} color="#888" />
+        <Text style={styles.sortText}>Ordenar por nombre de usuario</Text>
+      </TouchableOpacity>
+    )}
+  </View>
+)}
+
 
       {/* Mostrar resultados solo si se ejecutó búsqueda y hay texto */}
       {searchExecuted && trimmedSearch !== '' && selected !== null && dummyResults.map((result) => (
@@ -97,5 +107,3 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
 });
-
-
