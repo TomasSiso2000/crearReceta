@@ -81,24 +81,22 @@ const FilteredResultScreen = () => {
       </View>
 
       {/* Lista de opciones */}
-      {filters.map((filter, index) => (
+      {/* Lista de filtros solo si no hay uno seleccionado */}
+      {selected === null && filters.map((filter, index) => (
         <TouchableOpacity
           key={index}
           style={styles.optionContainer}
-          onPress={() => {
-            setSelected(index);
-            setSearchTerm('');
-            setSearchExecuted(false);
-          }}
+          onPress={() => setSelected(index)}
         >
           <Ionicons
-            name={selected === index ? 'radio-button-on' : 'radio-button-off'}
+            name={'radio-button-off'}
             size={20}
             color="#888"
           />
           <Text style={styles.optionText}>{filter}</Text>
         </TouchableOpacity>
       ))}
+
 
       {/* Resultados */}
       <FilteredResult
@@ -152,5 +150,3 @@ const styles = StyleSheet.create({
     color: '#444',
   },
 });
-
-
