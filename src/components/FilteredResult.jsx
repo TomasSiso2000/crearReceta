@@ -18,18 +18,21 @@ const dummyResults = [
   },
 ];
 
-const FilteredResult = ({ searchTerm }) => {
-  if (!(searchTerm || '').trim()) return null;
-
+const FilteredResult = ({ searchTerm, selected }) => {
+  const trimmedSearch = (searchTerm || '').trim();
 
   return (
     <View style={{ marginTop: 30 }}>
-      <TouchableOpacity style={styles.sortButton}>
-        <Ionicons name="swap-vertical" size={18} color="#888" />
-        <Text style={styles.sortText}>Ordenar por antigüedad</Text>
-      </TouchableOpacity>
+      {/* Mostrar botón siempre que haya un filtro seleccionado */}
+      {selected !== null && (
+        <TouchableOpacity style={styles.sortButton}>
+          <Ionicons name="swap-vertical" size={18} color="#888" />
+          <Text style={styles.sortText}>Ordenar por antigüedad</Text>
+        </TouchableOpacity>
+      )}
 
-      {dummyResults.map((result) => (
+      {/* Mostrar resultados solo si hay texto */}
+      {trimmedSearch !== '' && dummyResults.map((result) => (
         <View key={result.id} style={styles.card}>
           <Image source={{ uri: result.image }} style={styles.image} />
           <View style={styles.cardInfo}>
@@ -48,6 +51,7 @@ const FilteredResult = ({ searchTerm }) => {
 };
 
 export default FilteredResult;
+
 
 const styles = StyleSheet.create({
   sortButton: {
@@ -92,3 +96,4 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
 });
+
