@@ -18,14 +18,10 @@ const filters = [
   'Tipo (Carne, Pasta)',
 ];
 
-// ❌ ELIMINAR ESTA LÍNEA ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-// const [searchExecuted, setSearchExecuted] = useState(false);
-// ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
-
 const FilteredResultScreen = () => {
   const [selected, setSelected] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchExecuted, setSearchExecuted] = useState(false); // ✔️ ESTA ESTÁ BIEN
+  const [searchExecuted, setSearchExecuted] = useState(false);
 
   const resetFilter = () => {
     setSelected(null);
@@ -33,48 +29,67 @@ const FilteredResultScreen = () => {
     setSearchExecuted(false);
   };
 
+  const getPlaceholder = () => {
+    switch (filters[selected]) {
+      case 'Nombre de Usuario':
+        return 'Escribí el nombre de usuario';
+      case 'Con estos Ingredientes':
+        return 'Escribí los ingredientes (Ej: arroz, pollo)';
+      case 'Sin estos ingredientes':
+        return 'Ingredientes a evitar (Ej: maní)';
+      case 'Nombre de Receta':
+        return 'Escribí el nombre de la receta';
+      case 'Tipo (Carne, Pasta)':
+        return 'Escribí el tipo de plato (carne, pasta, etc.)';
+      default:
+        return 'Escribí tu búsqueda';
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* BARRA SUPERIOR que cambia dinámicamente */}
+      {/* Barra superior dinámica */}
       <View style={styles.headerButton}>
-  {filters[selected] === 'Nombre de Usuario' ? (
-    <View style={styles.inlineSearchBar}>
-      <TouchableOpacity onPress={resetFilter}>
-        <Ionicons name="arrow-back-circle-outline" size={24} color="#999" />
-      </TouchableOpacity>
-      <TextInput
-        placeholder="Escribí el nombre de usuario"
-        placeholderTextColor="#aaa"
-        style={styles.searchInput}
-        value={searchTerm}
-        onChangeText={(text) => {
-          setSearchTerm(text);
-          setSearchExecuted(false); // reinicia el estado de búsqueda
-        }}
-      />
-      <TouchableOpacity
-        onPress={() => {
-          if (searchTerm.trim() !== '') {
-            setSearchExecuted(true);
-          }
-        }}
-      >
-        <Ionicons name="search" size={24} color="#444" />
-      </TouchableOpacity>
-    </View>
-  ) : (
-    <Text style={styles.headerText}>Selecciona el filtro para empezar</Text>
-  )}
-</View>
-
-
+        {selected !== null ? (
+          <View style={styles.inlineSearchBar}>
+            <TouchableOpacity onPress={resetFilter}>
+              <Ionicons name="arrow-back-circle-outline" size={24} color="#999" />
+            </TouchableOpacity>
+            <TextInput
+              placeholder={getPlaceholder()}
+              placeholderTextColor="#aaa"
+              style={styles.searchInput}
+              value={searchTerm}
+              onChangeText={(text) => {
+                setSearchTerm(text);
+                setSearchExecuted(false);
+              }}
+            />
+            <TouchableOpacity
+              onPress={() => {
+                if (searchTerm.trim() !== '') {
+                  setSearchExecuted(true);
+                }
+              }}
+            >
+              <Ionicons name="search" size={24} color="#444" />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Text style={styles.headerText}>Selecciona el filtro para empezar</Text>
+        )}
+      </View>
 
       {/* Lista de opciones */}
       {filters.map((filter, index) => (
         <TouchableOpacity
           key={index}
           style={styles.optionContainer}
-          onPress={() => setSelected(index)}
+          onPress={() => {
+            setSelected(index);
+            setSearchTerm('');
+            setSearchExecuted(false);
+          }}
         >
           <Ionicons
             name={selected === index ? 'radio-button-on' : 'radio-button-off'}
@@ -85,17 +100,12 @@ const FilteredResultScreen = () => {
         </TouchableOpacity>
       ))}
 
-      {/* Resultados si aplica */}
-      {selected !== null && (
-        <FilteredResult
-          searchTerm={searchTerm}
-          selected={selected}
-          searchExecuted={searchExecuted}
-        />
-      )}
-
-
-
+      {/* Resultados */}
+      <FilteredResult
+        searchTerm={searchTerm}
+        selected={selected}
+        searchExecuted={searchExecuted}
+      />
     </ScrollView>
   );
 };
@@ -142,4 +152,5 @@ const styles = StyleSheet.create({
     color: '#444',
   },
 });
+
 
