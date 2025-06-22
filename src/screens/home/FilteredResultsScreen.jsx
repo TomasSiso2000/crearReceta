@@ -49,11 +49,6 @@ const FilteredResultScreen = () => {
   )}
 </View>
 
-{/* Mostrar resultados solo si se selecciona filtro y hay texto */}
-{filters[selected] === 'Nombre de Usuario' && !!searchTerm.trim() && (
-  <FilteredResult searchTerm={searchTerm} />
-)}
-
 
       {/* Lista de opciones */}
       {filters.map((filter, index) => (
@@ -72,9 +67,14 @@ const FilteredResultScreen = () => {
       ))}
 
       {/* Resultados si aplica */}
-      {filters[selected] === 'Nombre de Usuario' && (
-        <FilteredResult />
+      {selected !== null && (
+        <FilteredResult
+          searchTerm={searchTerm}
+          selected={selected}
+        />
       )}
+
+
     </ScrollView>
   );
 };
