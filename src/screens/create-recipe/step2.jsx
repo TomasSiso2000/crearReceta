@@ -137,7 +137,7 @@ export default function Step2() {
         <Text style={styles.agregarBtnText}> Agregar ingrediente</Text>
       </TouchableOpacity>
 
-      <DietInput selectedDiet={diet} onChange={(value) => setDiet(value)} />
+      
 
       <Text style={styles.label}>Instrucciones</Text>
       {instructions.map((step, index) => (
@@ -191,7 +191,7 @@ export default function Step2() {
         </View>
 
 
-      
+      <DietInput selectedDiet={diet} onChange={(value) => setDiet(value)} />
 
 
       <TouchableOpacity style={styles.saveBtn} onPress={validarYContinuar}>
