@@ -9,6 +9,8 @@ import { useNavigation } from '@react-navigation/native';
 import { TextInput } from 'react-native';
 import GetImageComponent from '../../components/GetImageComponent';
 import { Image } from 'react-native';
+import DietInput from '../../components/DietInput';
+
 
 export default function Step2() {
   const navigation = useNavigation();
@@ -86,7 +88,7 @@ export default function Step2() {
 
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
       <Text style={styles.label}>Imagen</Text>
         {image ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
@@ -134,6 +136,8 @@ export default function Step2() {
         <Ionicons name="add" size={14} />
         <Text style={styles.agregarBtnText}> Agregar ingrediente</Text>
       </TouchableOpacity>
+
+      <DietInput selectedDiet={diet} onChange={(value) => setDiet(value)} />
 
       <Text style={styles.label}>Instrucciones</Text>
       {instructions.map((step, index) => (
@@ -187,8 +191,8 @@ export default function Step2() {
         </View>
 
 
-      <Text style={styles.label}>Tipo de Dieta</Text>
-      <InputField placeholder="Seleccioná el tipo de Dieta" value={diet} onChangeText={setDiet} />
+      
+
 
       <TouchableOpacity style={styles.saveBtn} onPress={validarYContinuar}>
         <Text style={styles.saveText}>Guardar y continuar</Text>
@@ -234,6 +238,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     marginTop: 24,
+    marginBottom: 40, 
     alignItems: 'center',
   },
   saveText: {
@@ -259,6 +264,22 @@ const styles = StyleSheet.create({
   backgroundColor: '#eee',
   borderRadius: 8,
   },
+  pickerWrapper: {
+  backgroundColor: '#f0f0f0',
+  borderRadius: 4,
+  marginVertical: 10,
+  paddingHorizontal: 10,
+  paddingVertical: 6,
+  marginBottom: 20,
+  height: 50,
+  width: '100%',
+  zIndex: 1,           // <--- nuevo
+  elevation: 1,        // <--- para Android
+},
+picker: {
+  height: 60, // aumento
+  width: '100%',
+},
   removeText: {
   color: '#A450D6',
   fontSize: 12,
