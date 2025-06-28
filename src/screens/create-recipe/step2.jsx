@@ -11,6 +11,7 @@ import GetImageComponent from '../../components/GetImageComponent';
 import { Image } from 'react-native';
 import DietInput from '../../components/DietInput';
 import DishTypeInput from '../../components/DishTypeInput';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 
 
 
@@ -93,6 +94,11 @@ export default function Step2() {
 
 
   return (
+    <KeyboardAvoidingView
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  style={{ flex: 1 }}
+  keyboardVerticalOffset={100}
+>
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
       <Text style={styles.label}>Imagen</Text>
         {image ? (
@@ -211,6 +217,7 @@ export default function Step2() {
       </TouchableOpacity>
 
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -299,4 +306,5 @@ picker: {
   marginLeft: 4,
 }
 });
+
 
