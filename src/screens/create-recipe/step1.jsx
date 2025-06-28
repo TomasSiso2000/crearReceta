@@ -29,13 +29,21 @@ export default function Step1() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backIconContainer}>
-          <View style={styles.circle}>
-            <Feather name="arrow-left" size={20} color="#000" />
-          </View>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Crea tu propia receta</Text>
+  <View style={styles.side}>
+    <TouchableOpacity onPress={() => navigation.goBack()}>
+      <View style={styles.circle}>
+        <Feather name="arrow-left" size={20} color="#000" />
       </View>
+    </TouchableOpacity>
+  </View>
+
+  <View style={styles.center}>
+    <Text style={styles.headerTitle}>Crea tu propia receta</Text>
+  </View>
+
+  <View style={styles.side} /> 
+</View>
+
 
       {/* Campo título */}
       <Text style={styles.label}>Título</Text>
@@ -91,41 +99,43 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    height: 95,
-    paddingTop: 30,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 2,
-    marginBottom: 20,
-    position: 'relative',
-  },
+  height: 95,
+  paddingTop: 30,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingHorizontal: 16,
+  backgroundColor: '#fff',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.2,
+  shadowRadius: 3,
+  elevation: 2,
+  marginBottom: 20,
+},
   backIconContainer: {
     position: 'absolute',
     left: 23,
     top: 30,
   },
   circle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  width: 36,
+  height: 36,
+  borderRadius: 18,
+  borderWidth: 1.5,
+  borderColor: '#000',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
   headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#000',
-    fontFamily: 'Inter_700Bold',
-    marginTop: 10,
-    textAlign: 'center',
-  },
+  fontSize: 24,
+  fontWeight: '700',
+  color: '#000',
+  fontFamily: 'Inter_700Bold',
+  textAlign: 'center',
+  flexShrink: 1,          
+  flexWrap: 'wrap',      
+},
   label: {
     fontSize: 16,
     fontFamily: 'Inter_200ExtraLight',
@@ -194,6 +204,20 @@ const styles = StyleSheet.create({
     marginTop: 24,
     alignItems: 'center',
   },
+  headerCenter: {
+  flex: 1,
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+center: {
+  flex: 1,
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+side: {
+  width: 40, 
+  alignItems: 'flex-start',
+},
   nextText: {
     color: '#fff',
     fontWeight: 'bold',
