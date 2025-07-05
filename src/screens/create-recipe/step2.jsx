@@ -1,22 +1,25 @@
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, TextInput, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import InputField from '../../components/InputField';
 import PlusMinusButton from '../../components/PlusMinusButton';
 import IngredientInput from '../../components/IngredientInput';
 import InstructionInput from '../../components/InstructionInput';
-import { useNavigation } from '@react-navigation/native';
-import { TextInput } from 'react-native';
 import GetImageComponent from '../../components/GetImageComponent';
-import { Image } from 'react-native';
-import DietInput from '../../components/DietInput';
-import DishTypeInput from '../../components/DishTypeInput';
-import { KeyboardAvoidingView, Platform } from 'react-native';
+import loadRecipe from '../../api/RECIPE-SERVICE/createRecipe/loadRecipe';
+import { AuthContext } from '../../context/AuthContext';
+import uploadImage from '../../api/IMAGE-SERVICE/uploadImage';
+import * as FileSystem from 'expo-file-system';
+import existNameForUpdate from '../../api/RECIPE-SERVICE/createRecipe/existNameForUpdate';
+import NetInfo from '@react-native-community/netinfo'; //CAMBIO NOINTERNET: IMPORTAR ESTO
 
 
-
-export default function Step2() {
+export default function StepTwo() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { mode = 'CREATE', recipe,activate=false,id="" } = route.params || {};
+  const [name, setName] = useState("");
   const [description, setDescription] = useState('');
   const [portions, setPortions] = useState(1);
   const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '' }]);
@@ -24,104 +27,229 @@ export default function Step2() {
   const [difficulty, setDifficulty] = useState('MEDIO');
   const [minutes, setMinutes] = useState(0);
   const [diet, setDiet] = useState('');
+  const [typeOfDish, setTypeOfDish] = useState('');
   const [image, setImage] = useState(null);
   const [showImagePicker, setShowImagePicker] = useState(false);
-  const [dishType, setDishType] = useState('');
-  const [customDishType, setCustomDishType] = useState('');
 
+  const { token } = useContext(AuthContext);
 
+  const [fieldErrors, setFieldErrors] = useState({
+    name:"",
+    image:"",
+    description: '',
+    diet: '',
+    typeOfDish: '',
+    minutes: '',
+    ingredients: [],
+    instructions: [],
+  });
 
-  const addIngredient = () => {
-    setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
+  const verifyName = async () =>{
+    const result = await existNameForUpdate(id,name.trim(),token);
+    if(result?.success){
+      let message = result?.message;
+      console.log(message)
+      return message;
+    }
   };
 
+   useEffect(() => {
+    if (mode !== 'CREATE' && mode !== 'REPLACE' && recipe) {
+      setName(recipe.name || "");
+      setImage({uri:recipe.image} || '');
+      setDescription(recipe.description || '');
+      setPortions(recipe.portions || 1);
+      setIngredients(recipe.ingredients || [{ name: '', quantity: '', unit: '' }]);
+      setInstructions(recipe.steps?.map(step => step.description) || ['']);
+      setDifficulty(recipe.difficulty || 'MEDIO');
+      setMinutes(recipe.time || 0);
+      setDiet(recipe.typeOfDiet || '');
+      setTypeOfDish(recipe.typeOfDish || '');
+    }
+  }, [mode, recipe]);
+
+   const onImageSelected = async (imageUri) => {
+  try {
+    const base64String = await FileSystem.readAsStringAsync(imageUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    const base64Image = `data:image/jpeg;base64,${base64String}`;
+    const { url } = await uploadImage(base64Image);
+    console.log("nueva url", url)
+    setImage({uri: url });
+    
+  } catch (error) {
+    console.error('Error al actualizar imagen:', error.message);
+  }
+};
+
+  const addIngredient = () => setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
   const updateIngredient = (index, updated) => {
     const updatedList = [...ingredients];
     updatedList[index] = updated;
     setIngredients(updatedList);
   };
-
   const removeIngredient = (index) => {
-    const updated = ingredients.filter((_, i) => i !== index);
-    setIngredients(updated);
+    if (ingredients.length > 1) {
+      setIngredients(ingredients.filter((_, i) => i !== index));
+    }
   };
 
-  const removeInstruction = (index) => {
-  const updated = instructions.filter((_, i) => i !== index);
-  setInstructions(updated);
-};
-
-  const addInstruction = () => {
-    setInstructions([...instructions, '']);
-  };
-
+  const addInstruction = () => setInstructions([...instructions, '']);
   const updateInstruction = (index, value) => {
     const updated = [...instructions];
     updated[index] = value;
     setInstructions(updated);
   };
+  const removeInstruction = (index) => {
+    if (instructions.length > 1) {
+      setInstructions(instructions.filter((_, i) => i !== index));
+    }
+  };
 
-  const validarYContinuar = () => {
-  if (!description.trim()) {
-    Alert.alert('Falta la descripción');
-    return;
-  }
+  const load = async (commonData,option) =>{
+    await loadRecipe(commonData,option,token);
+  };
 
-  if (ingredients.length === 0 || ingredients.some(i => !i.name.trim() || !i.quantity.trim() || !i.unit.trim())) {
-    Alert.alert('Completá todos los ingredientes');
-    return;
-  }
+  const validarYContinuar = async () => {
+    const newErrors = {
+      name:"",
+      image:"",
+      description: '',
+      diet: '',
+      typeOfDish: '',
+      minutes: '',
+      ingredients: [],
+      instructions: [],
+    };
+    let hasError = false;
 
-  if (instructions.length === 0 || instructions.some(i => !i.trim())) {
-    console.log('instrucciones:', instructions);
-    Alert.alert('Completá todas las instrucciones');
-    return;
-  }
+    if(activate){
+      const response = await verifyName();
+      if(response){
+        console.log(response)
+        newErrors.name = response;
+        hasError=true;
+      }
+      if(!name){
+        newErrors.name = "El name es obligatoria";
+        hasError=true;
+      }
+    }
 
-  if (!diet.trim()) {
-    Alert.alert('Seleccioná el tipo de dieta');
-    return;
-  }
+    if(!image){
+      newErrors.image = "Se debe seleccionar una imagen";
+      hasError=true;
+    }
+    if (!description.trim()) {
+      newErrors.description = 'La descripción es obligatoria';
+      hasError = true;
+    }
 
-  if (minutes === 0) {
-    Alert.alert('Ingresá un tiempo de preparación válido');
-    return;
-  }
+    if (!diet.trim()) {
+      newErrors.diet = 'El tipo de dieta es obligatorio';
+      hasError = true;
+    }
 
-  // Si pasa todo:
-  navigation.navigate('step3');
+    if (!typeOfDish.trim()) {
+      newErrors.typeOfDish = 'El tipo de plato es obligatorio';
+      hasError = true;
+    }
+
+    if (!minutes || isNaN(minutes) || minutes <= 0) {
+      newErrors.minutes = 'El tiempo debe ser mayor a cero';
+      hasError = true;
+    }
+
+    if (ingredients.length === 0) {
+      newErrors.ingredients.push({ name: 'Faltan ingredientes', quantity: '', unit: '' });
+      hasError = true;
+    } else {
+      newErrors.ingredients = ingredients.map((i) => {
+        const err = {};
+        if (!i.name?.trim()) err.name = 'Nombre obligatorio';
+        if (i.quantity === '' || i.quantity === null || isNaN(i.quantity)) err.quantity = 'Cantidad inválida';
+        if (!i.unit?.trim()) err.unit = 'Seleccioná una unidad';
+        if (Object.keys(err).length > 0) hasError = true;
+        return err;
+      });
+    }
+
+    if (instructions.length === 0) {
+      newErrors.instructions.push('Debe haber al menos un paso');
+      hasError = true;
+    } else {
+      newErrors.instructions = instructions.map((step) => {
+        const err = !step.trim() ? 'Paso obligatorio' : '';
+        if (err) hasError = true;
+        return err;
+      });
+    }
+
+    setFieldErrors(newErrors);
+    if (hasError) return;
+
+  const commonData = {
+  name: recipe?.name,
+  nickName: recipe?.nickName,
+  image:image.uri,
+  description: description.trim(),
+  portions,
+  ingredients,
+  steps: instructions.map(desc => ({ description: desc.trim() })),
+  difficulty,
+  time: minutes,
+  typeOfDiet: diet.trim(),
+  typeOfDish: typeOfDish.trim(),
 };
 
 
-  return (
-    <KeyboardAvoidingView
-  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-  style={{ flex: 1 }}
-  keyboardVerticalOffset={100}
->
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
-      <Text style={styles.label}>Imagen</Text>
-        {image ? (
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-            <Image source={{ uri: image }} style={styles.imagePreview} />
-            <TouchableOpacity onPress={() => setImage(null)} style={styles.removeImageBtn}>
-            <Ionicons name="trash" size={20} color="black" />
-            </TouchableOpacity>
-        </View>
-        ) : (
-        <TouchableOpacity style={styles.addBtn} onPress={() => setShowImagePicker(true)}>
-            <Text style={styles.addBtnText}>+</Text>
-        </TouchableOpacity>
-        )}
-        <GetImageComponent
-        visible={showImagePicker}
-        setVisible={setShowImagePicker}
-        onImageSelected={(uri) => setImage(uri)}
-        />
+    const payload = { newRecipe: commonData };
+    if (mode === 'UPDATE'){
+       payload.updatedRecipe = commonData;
+      }
+    if (mode === 'REPLACE'){
+      payload.recipeToReplace = commonData;
+    
+    }
+    const netState = await NetInfo.fetch(); //CAMBIO NOINTERNET: CAMBIAR POR EL load(commonData,mode)  Y navigation.navigate('stepThree', { mode, ...payload });
+if (!netState.isConnected) {
+  navigation.navigate('stepFour', { mode, ...payload });
+  return;
+}
 
+await load(commonData, mode);
+navigation.navigate('stepThree', { mode, ...payload });
+
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+      <Text style={styles.label}>Imagen</Text>
+      {fieldErrors.image ? <Text style={styles.error}>{fieldErrors.image}</Text> : null}
+      {image ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+          <Image source={image} style={styles.imagePreview} />
+          <TouchableOpacity onPress={() => setImage(null)} style={styles.removeImageBtn}>
+            <Ionicons name="trash" size={20} color="black" />
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <TouchableOpacity style={styles.addBtn} onPress={() => setShowImagePicker(!showImagePicker)}>
+          <Text style={styles.addBtnText}>+</Text>
+        </TouchableOpacity>
+      )}
+      <GetImageComponent visible={showImagePicker} setVisible={setShowImagePicker} onImageSelected={onImageSelected} />
+
+      {activate && <><Text style={styles.label}>Nombre</Text>
+      <InputField placeholder="Nombre brevemente el plato" value={name} onChangeText={setName} />
+      {fieldErrors.name && <Text style={styles.error}>{fieldErrors.name}</Text>}
+    </>}
 
       <Text style={styles.label}>Descripción</Text>
       <InputField placeholder="Describe brevemente el plato" value={description} onChangeText={setDescription} />
+      {fieldErrors.description && <Text style={styles.error}>{fieldErrors.description}</Text>}
 
       <Text style={styles.label}>Porciones</Text>
       <View style={styles.row}>
@@ -133,36 +261,38 @@ export default function Step2() {
       <Text style={styles.label}>Ingredientes</Text>
       {ingredients.map((item, index) => (
         <View key={index} style={{ marginBottom: 12 }}>
-            <IngredientInput
-                ingredient={item}
-                onChange={(updated) => updateIngredient(index, updated)}
-            />
+          <IngredientInput
+            ingredient={item}
+            onChange={(updated) => updateIngredient(index, updated)}
+            error={fieldErrors.ingredients[index] || {}}
+          />
+          {ingredients.length > 1 && (
             <TouchableOpacity onPress={() => removeIngredient(index)}>
-             <Text style={styles.removeText}>🗑️ Borrar ingrediente</Text>
+              <Text style={styles.removeText}>🗑️ Borrar ingrediente</Text>
             </TouchableOpacity>
+          )}
         </View>
-       ))}
-
+      ))}
       <TouchableOpacity onPress={addIngredient} style={styles.agregarBtn}>
         <Ionicons name="add" size={14} />
         <Text style={styles.agregarBtnText}> Agregar ingrediente</Text>
       </TouchableOpacity>
 
-      
-
       <Text style={styles.label}>Instrucciones</Text>
       {instructions.map((step, index) => (
         <View key={index} style={{ marginBottom: 12 }}>
-            <InstructionInput
-                value={step}
-                onChangeText={(text) => updateInstruction(index, text)}
-            />
+          <InstructionInput
+            value={step}
+            onChange={(text) => updateInstruction(index, text)}
+            error={fieldErrors.instructions[index]}
+          />
+          {instructions.length > 1 && (
             <TouchableOpacity onPress={() => removeInstruction(index)}>
-                <Text style={styles.removeText}>🗑️ Borrar instrucción</Text>
+              <Text style={styles.removeText}>🗑️ Borrar instrucción</Text>
             </TouchableOpacity>
+          )}
         </View>
-       ))}
-
+      ))}
       <TouchableOpacity onPress={addInstruction} style={styles.agregarBtn}>
         <Ionicons name="add" size={14} />
         <Text style={styles.agregarBtnText}> Agregar instrucción</Text>
@@ -174,50 +304,42 @@ export default function Step2() {
           <TouchableOpacity
             key={level}
             style={[styles.levelBtn, difficulty === level && styles.selectedLevel]}
-            onPress={() => setDifficulty(level)}
-          >
+            onPress={() => setDifficulty(level)}>
             <Text>{level}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
       <Text style={styles.label}>Tiempo</Text>
-        <View style={styles.row}>
-            <TextInput
-                style={styles.timeInput}
-                placeholder="Minutos"
-                value={minutes.toString()}
-                onChangeText={(text) => {
-                    const num = parseInt(text, 10);
-                    if (!isNaN(num) && num >= 0) {
-                        setMinutes(num);
-                    } else if (text === '') {
-                        setMinutes(0);
-                    }
-                }}
-                keyboardType="numeric"
-                maxLength={3}
-            />
-            <Text style={styles.centeredText}>minutos</Text>
-        </View>
+      <View style={styles.row}>
+        <TextInput
+          style={styles.timeInput}
+          placeholder="Minutos"
+          value={minutes.toString()}
+          onChangeText={(text) => {
+            const num = parseInt(text, 10);
+            if (!isNaN(num) && num >= 0) setMinutes(num);
+            else if (text === '') setMinutes(0);
+          }}
+          keyboardType="numeric"
+          maxLength={3}
+        />
+        <Text style={styles.centeredText}>minutos</Text>
+      </View>
+      {fieldErrors.minutes && <Text style={styles.error}>{fieldErrors.minutes}</Text>}
 
+      <Text style={styles.label}>Tipo de Dieta</Text>
+      <InputField placeholder="Seleccioná el tipo de Dieta" value={diet} onChangeText={setDiet} />
+      {fieldErrors.diet && <Text style={styles.error}>{fieldErrors.diet}</Text>}
 
-      <DietInput selectedDiet={diet} onChange={(value) => setDiet(value)} />
-
-      <DishTypeInput
-        selectedDish={dishType}
-        onDishChange={(value) => setDishType(value)}
-        customDish={customDishType}
-        onCustomDishChange={(text) => setCustomDishType(text)}
-      />
-
+      <Text style={styles.label}>Tipo de Plato</Text>
+      <InputField placeholder="Seleccioná el tipo de plato" value={typeOfDish} onChangeText={setTypeOfDish} />
+      {fieldErrors.typeOfDish && <Text style={styles.error}>{fieldErrors.typeOfDish}</Text>}
 
       <TouchableOpacity style={styles.saveBtn} onPress={validarYContinuar}>
         <Text style={styles.saveText}>Guardar y continuar</Text>
       </TouchableOpacity>
-
     </ScrollView>
-    </KeyboardAvoidingView>
   );
 }
 
@@ -225,86 +347,20 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', padding: 16 },
   label: { fontSize: 16, fontWeight: 'bold', marginTop: 16 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 10 },
-  addBtn: {
-    width: 24,
-    height: 24,
-    backgroundColor: '#DAAEEB',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 4,
-  },
+  addBtn: { width: 24, height: 24, backgroundColor: '#DAAEEB', justifyContent: 'center', alignItems: 'center', borderRadius: 4 },
   addBtnText: { fontSize: 18, fontWeight: 'bold' },
   centeredText: { fontSize: 14 },
-  agregarBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 10,
-    gap: 4,
-  },
+  agregarBtn: { flexDirection: 'row', alignItems: 'center', marginVertical: 10, gap: 4 },
   agregarBtnText: { fontSize: 12 },
-  levelBtn: {
-    flex: 1,
-    backgroundColor: '#eee',
-    padding: 10,
-    borderRadius: 4,
-    alignItems: 'center',
-  },
-  selectedLevel: {
-    backgroundColor: '#DAAEEB',
-  },
-  saveBtn: {
-    backgroundColor: '#A450D6',
-    padding: 16,
-    borderRadius: 8,
-    marginTop: 24,
-    marginBottom: 40, 
-    alignItems: 'center',
-  },
-  saveText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  timeInput: {
-    width: 60,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 4,
-    padding: 10,
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  imagePreview: {
-  width: 80,
-  height: 80,
-  borderRadius: 8,
-  marginRight: 10,
-  },
-  removeImageBtn: {
-  padding: 6,
-  backgroundColor: '#eee',
-  borderRadius: 8,
-  },
-  pickerWrapper: {
-  backgroundColor: '#f0f0f0',
-  borderRadius: 4,
-  marginVertical: 10,
-  paddingHorizontal: 10,
-  paddingVertical: 6,
-  marginBottom: 20,
-  height: 50,
-  width: '100%',
-  zIndex: 1,           // <--- nuevo
-  elevation: 1,        // <--- para Android
-},
-picker: {
-  height: 60, // aumento
-  width: '100%',
-},
-  removeText: {
-  color: '#A450D6',
-  fontSize: 12,
-  marginTop: 4,
-  marginLeft: 4,
-}
+  levelBtn: { flex: 1, backgroundColor: '#eee', padding: 10, borderRadius: 4, alignItems: 'center' },
+  selectedLevel: { backgroundColor: '#DAAEEB' },
+  saveBtn: { backgroundColor: '#A450D6', padding: 16, borderRadius: 8, marginTop: 24,marginBottom:100, alignItems: 'center' },
+  saveText: { color: '#fff', fontWeight: 'bold' },
+  timeInput: { width: 60, backgroundColor: '#f0f0f0', borderRadius: 4, padding: 10, fontSize: 14, textAlign: 'center' },
+  imagePreview: { width: 80, height: 80, borderRadius: 8, marginRight: 10 },
+  removeImageBtn: { padding: 6, backgroundColor: '#eee', borderRadius: 8 },
+  removeText: { color: '#A450D6', fontSize: 12, marginTop: 4, marginLeft: 4 },
+  error: { color: 'red', fontSize: 12, marginBottom: 6 },
 });
 
 
