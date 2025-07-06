@@ -28,6 +28,18 @@ export default function Profile({ navigation }) {
     if (error || errorProfile) console.error("🔴 ERROR AL CARGAR HOME:", error || errorProfile);
   }, [loading, data, error, dataProfile]);
 
+  useEffect(() => {
+  const verificarConexion = async () => {
+    const isConnected = await checkConnection();
+    if (!isConnected) {
+      navigation.replace('createRecipe', { screen: 'stepFour' });
+    }
+  };
+
+  verificarConexion();
+}, []);
+
+
 
   const checkConnection = async () => {
   const netState = await NetInfo.fetch();
