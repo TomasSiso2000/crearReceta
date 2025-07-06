@@ -64,7 +64,7 @@ export default function RecipeDetailScreen({ navigation }) {
     try {
       const netState = await NetInfo.fetch();
       if (!netState.isConnected) {
-        navigation.navigate('createRecipe', { screen: 'stepFour' });
+        navigation.navigate('createRecipe', { screen: 'stepFive' });
         return;
       }
 
@@ -106,7 +106,7 @@ export default function RecipeDetailScreen({ navigation }) {
     try {
       const netState = await NetInfo.fetch();
       if (!netState.isConnected) {
-        navigation.navigate('createRecipe', { screen: 'stepFour' });
+        navigation.navigate('createRecipe', { screen: 'stepFive' });
         return;
       }
 
@@ -204,7 +204,7 @@ export default function RecipeDetailScreen({ navigation }) {
               onPress={async () => {
                 const netState = await NetInfo.fetch();
                 if (!netState.isConnected) {
-                  navigation.navigate('createRecipe', { screen: 'stepFour' });
+                  navigation.navigate('createRecipe', { screen: 'stepFive' });
                   return;
                 }
                 navigation.navigate('AddRating', { id });
@@ -332,4 +332,3 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 });
-
