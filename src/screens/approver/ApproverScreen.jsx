@@ -40,7 +40,7 @@ export default function ApproverScreen({ navigation }) {
   const handleApproveComemnt = async (id, accept) => {
   const netState = await NetInfo.fetch();
   if (!netState.isConnected) {
-    navigation.navigate('createRecipe', { screen: 'stepFour' }); // Redirección correcta
+    navigation.navigate('createRecipe', { screen: 'stepFive' }); // Redirección correcta
     return;
   }
 
@@ -53,7 +53,7 @@ export default function ApproverScreen({ navigation }) {
 const handleApproveRecipe = async (id, accept) => {
   const netState = await NetInfo.fetch();
   if (!netState.isConnected) {
-    navigation.navigate('createRecipe', { screen: 'stepFour' }); // Redirección correcta
+    navigation.navigate('createRecipe', { screen: 'stepFive' }); // Redirección correcta
     return;
   }
 
