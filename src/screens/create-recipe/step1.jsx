@@ -1,49 +1,99 @@
 import { Feather } from '@expo/vector-icons';
-import { View, Text, TextInput, TouchableOpacity, Alert, Platform, StyleSheet } from 'react-native';
-import { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { useState, useContext } from 'react';
+import BackButtonComponent from "../../components/BackButtonComponent";
+import existName from "../../api/RECIPE-SERVICE/createRecipe/existName";
+import { AuthContext } from '../../context/AuthContext';
+import NetInfo from '@react-native-community/netinfo';
 
-export default function Step1() {
-  const [title, setTitle] = useState('');
+
+export default function StepOne({ navigation }) {
+  const [title, setTitle] = useState("");
   const [exists, setExists] = useState(false);
-  const [checked, setChecked] = useState(false); // nuevo estado
-  const navigation = useNavigation();
+  const [checking, setChecking] = useState(false);
+  const [error, setError] = useState(null);
+  const [visible, setVisible] = useState(false); 
+  const [recipeData, setRecipeData] = useState(null); 
 
-  const verificarTitulo = () => {
-    const tituloNormalizado = title.trim().toLowerCase();
+  const { token } = useContext(AuthContext);
 
-    if (tituloNormalizado === '') {
-      Alert.alert('Ingresá un título');
-      return;
+  const handleOptionPress = (option) => {
+    const baseRecipe = {
+      name: recipeData?.name,
+      nickName: recipeData?.nickName,
+      image:recipeData?.image,
+      description: recipeData?.description || '',
+      ingredients: recipeData?.ingredients || [],
+      steps: recipeData?.steps || [],
+      difficulty: recipeData?.difficulty || 'MEDIO',
+      typeOfDiet: recipeData?.typeOfDiet || '',
+      typeOfDish: recipeData?.typeOfDish || '',
+      time: recipeData?.time || 0,
+      image: recipeData?.image || null,
+      portions: recipeData?.portions || 1,
+    };
+
+    switch (option) {
+      case 'Cambiar Nombre':
+        setTitle("");
+        setExists(false);
+        setVisible(false);
+        setError(null);
+        break;
+      case 'Reemplazar Existente':
+        navigation.navigate('stepTwo', {
+          mode: 'REPLACE',
+          recipe: baseRecipe
+        });
+        break;
+      case 'Editar Existente':
+        navigation.navigate('stepTwo', {
+          mode: 'UPDATE',
+          recipe: baseRecipe
+        });
+        break;
+      default:
+        break;
     }
-
-    const yaExiste = false; // Simulación de resultado
-
-    setExists(yaExiste);
-    setChecked(true);
-
-    
   };
+
+ const verificarTitulo = async () => {
+  if (!title.trim()) {
+    Alert.alert('Por favor, ingresá un título válido.');
+    return;
+  }
+
+  const netState = await NetInfo.fetch();
+  if (!netState.isConnected) {
+    navigation.navigate('stepFour');
+    return;
+  }
+
+  setChecking(true);
+  setError(null);
+
+  try {
+    const result = await existName(title.trim(), token);
+    console.log("Resultado de existName:", result);
+    setExists(result.success);
+    setVisible(!result.success);
+    setRecipeData(result.recipe);
+  } catch (e) {
+    setError(e.message);
+    setExists(false);
+    setVisible(false);
+  } finally {
+    setChecking(false);
+  }
+};
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-  <View style={styles.side}>
-    <TouchableOpacity onPress={() => navigation.goBack()}>
-      <View style={styles.circle}>
-        <Feather name="arrow-left" size={20} color="#000" />
+        <BackButtonComponent navigation={navigation} />
+        <Text style={styles.headerTitle}>Crea tu propia receta</Text>
       </View>
-    </TouchableOpacity>
-  </View>
-
-  <View style={styles.center}>
-    <Text style={styles.headerTitle}>Crea tu propia receta</Text>
-  </View>
-
-  <View style={styles.side} /> 
-</View>
-
 
       {/* Campo título */}
       <Text style={styles.label}>Título</Text>
@@ -51,20 +101,28 @@ export default function Step1() {
         placeholder="Agrega nombre a la receta"
         placeholderTextColor="#B9B9B9"
         value={title}
-        onChangeText={(text) => {
+        onChangeText={text => {
           setTitle(text);
-          setChecked(false); // resetea cuando cambia
+          setExists(false);
+          setVisible(false);
+          setError(null);
         }}
+        editable={!exists && !checking}
         style={styles.input}
       />
 
-      {/* Verificar existencia */}
-      <TouchableOpacity onPress={verificarTitulo} style={styles.verificarBtn}>
-        <Text style={styles.verificarBtnText}>Verificar si el título existe</Text>
+      {/* Botón verificar existencia */}
+      <TouchableOpacity onPress={verificarTitulo} disabled={checking || !title.trim()}>
+        <Text style={styles.verificarTexto}>
+          {checking ? "Verificando..." : "Verificar si el título existe"}
+        </Text>
       </TouchableOpacity>
 
-      {/* Condicionales */}
-      {checked && exists && (
+      {/* Mostrar error si lo hay */}
+      {error && <Text style={{ color: 'red', marginBottom: 10 }}>{error}</Text>}
+
+      {/* Si existe receta */}
+      {exists && (
         <>
           <View style={styles.existeBox}>
             <Text style={styles.existeText}>
@@ -74,7 +132,7 @@ export default function Step1() {
 
           <View style={styles.botonesContainer}>
             {['Cambiar Nombre', 'Reemplazar Existente', 'Editar Existente'].map((label) => (
-              <TouchableOpacity key={label} style={styles.btn}>
+              <TouchableOpacity key={label} style={styles.btn} onPress={() => handleOptionPress(label)}>
                 <Text style={styles.btnText}>{label}</Text>
               </TouchableOpacity>
             ))}
@@ -82,8 +140,17 @@ export default function Step1() {
         </>
       )}
 
-      {checked && !exists && (
-        <TouchableOpacity style={styles.nextBtn} onPress={() => navigation.navigate('step2')}>
+      {/* Botón siguiente si NO existe y fue verificado */}
+      {visible && (
+        <TouchableOpacity
+          style={styles.nextBtn}
+          onPress={() => navigation.navigate('stepTwo', {
+            recipe: {
+              name: recipeData.name,
+              nickName: recipeData.nickName, 
+            }
+          })}
+        >
           <Text style={styles.nextText}>Crear receta</Text>
         </TouchableOpacity>
       )}
@@ -99,43 +166,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-  height: 95,
-  paddingTop: 30,
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  paddingHorizontal: 16,
-  backgroundColor: '#fff',
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.2,
-  shadowRadius: 3,
-  elevation: 2,
-  marginBottom: 20,
-},
-  backIconContainer: {
-    position: 'absolute',
-    left: 23,
-    top: 30,
+    height: 95,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 2,
+    marginBottom: 20,
+    position: 'relative',
   },
-  circle: {
-  width: 36,
-  height: 36,
-  borderRadius: 18,
-  borderWidth: 1.5,
-  borderColor: '#000',
-  justifyContent: 'center',
-  alignItems: 'center',
-},
   headerTitle: {
-  fontSize: 24,
-  fontWeight: '700',
-  color: '#000',
-  fontFamily: 'Inter_700Bold',
-  textAlign: 'center',
-  flexShrink: 1,          
-  flexWrap: 'wrap',      
-},
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#000',
+    fontFamily: 'Inter_700Bold',
+  },
   label: {
     fontSize: 16,
     fontFamily: 'Inter_200ExtraLight',
@@ -144,7 +192,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    height: 30,
+    height: 40,
     backgroundColor: 'rgba(0, 0, 0, 0.06)',
     borderRadius: 0,
     paddingHorizontal: 10,
@@ -153,18 +201,16 @@ const styles = StyleSheet.create({
     color: '#000',
     marginBottom: 10,
   },
-  verificarBtn: {
-    backgroundColor: '#DAAEEB',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 6,
+  verificarTexto: {
+    backgroundColor: 'rgba(218, 174, 235, 0.53)',
     alignSelf: 'flex-start',
-    marginBottom: 20,
-  },
-  verificarBtnText: {
-    fontSize: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    fontSize: 9,
     color: '#000',
-    fontWeight: '500',
+    fontFamily: 'Inter_100Thin',
+    marginBottom: 20,
   },
   existeBox: {
     backgroundColor: '#EAEAEA',
@@ -204,20 +250,6 @@ const styles = StyleSheet.create({
     marginTop: 24,
     alignItems: 'center',
   },
-  headerCenter: {
-  flex: 1,
-  alignItems: 'center',
-  justifyContent: 'center',
-},
-center: {
-  flex: 1,
-  alignItems: 'center',
-  justifyContent: 'center',
-},
-side: {
-  width: 40, 
-  alignItems: 'flex-start',
-},
   nextText: {
     color: '#fff',
     fontWeight: 'bold',
