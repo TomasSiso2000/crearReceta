@@ -34,7 +34,7 @@ const ArchivedScreen = ({navigation}) => {
   const handleDelete = async (recipeId) => {
     const netState = await NetInfo.fetch();
     if (!netState.isConnected) {
-    navigation.navigate('createRecipe', { screen: 'stepFour' }); // Redirección correcta
+    navigation.navigate('createRecipe', { screen: 'stepFive' }); // Redirección correcta
     return;
   }
 
@@ -108,4 +108,3 @@ const styles = StyleSheet.create({
 });
 
 export default ArchivedScreen;
-
